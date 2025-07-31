@@ -1,7 +1,12 @@
 import fastify from 'fastify';
 import { request } from 'http';
+import cors from '@fastify/cors';
 
 const server = fastify({ logger: true });
+
+server.register(cors, {
+    origin: 'http://www.localhost',
+})
 
 const teams = [
     { id: 1, name: 'Caloi', base: 'Brazil' },
@@ -12,8 +17,7 @@ const teams = [
 const riders = [
     { id: 1, name: 'Avancinni', team: 'Caloi' },
     { id: 2, name: 'Ulan Galinski', team: 'Monark' },
-    { id: 3, name: 'Mathiew Van Der Poel', team: 'Sundown' },
-    
+    { id: 3, name: 'Mathiew Van Der Poel', team: 'Sundown' },  
 ]
 
 server.get('/teams', async (request, response) => {
@@ -22,10 +26,31 @@ server.get('/teams', async (request, response) => {
     return teams;
 })
 
-server.get('/pilots', async (request, response) => {
+server.get('/riders', async (request, response) => {
     response.type('application/json').code(200);
 
     return riders;
+})
+
+interface DriversParams {
+    id: string;
+}
+
+server.get<{ Params: DriversParams }>('/riders/:id', async (request, response) => {
+    const id = Number(request.params.id);
+
+    const rider = riders.find((rider) => {
+        return rider.id === id;
+    })
+
+    if(!rider) {
+        response.type('application/json').code(404);
+        return { err: "Rider not found!" };
+    }
+
+    response.type('application/json').code(200);
+
+    return rider;
 })
 
 server.listen({ port: 3335 }, () => {
