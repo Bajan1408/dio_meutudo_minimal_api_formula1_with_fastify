@@ -5,7 +5,7 @@ import cors from '@fastify/cors';
 const server = fastify({ logger: true });
 
 server.register(cors, {
-    origin: 'http://www.localhost',
+    origin: '*',
 })
 
 const teams = [
